@@ -13,9 +13,10 @@ export class UserController {
 
   @UseGuards(AuthAccessGuard)
   @Get()
-  getUser (@Req() req: Request) {
+  getUser (@Req() req: Request): UserDto {
     const refreshToken = req.cookies['token']
     const user = this.userService.getByToken(refreshToken)
+
     const userDto = plainToClass(UserDto, user, {
       excludeExtraneousValues: true,
     })
@@ -25,7 +26,7 @@ export class UserController {
 
   @UseGuards(AuthAccessGuard)
   @Put('update')
-  updateUser (@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+  updateUser (@Body() updateUserDto: UpdateUserDto, @Req() req: Request): UserDto {
     const refreshToken = req.cookies['token']
     const user = this.userService.update(refreshToken, updateUserDto)
 

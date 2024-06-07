@@ -11,8 +11,12 @@ import { UserModule } from '../user/user.module'
 import { ConfigModule } from '@nestjs/config'
 
 @Module({
-  providers: [ AuthService, HashService, TokenService ],
   controllers: [ AuthController ],
+  providers: [
+    AuthService,
+    HashService,
+    TokenService,
+  ],
   imports: [
     JwtModule.register({}),
     ConfigModule,

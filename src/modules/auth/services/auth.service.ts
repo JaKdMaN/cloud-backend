@@ -69,9 +69,9 @@ export class AuthService {
   }
 
   async logout (refreshToken: string) {
-    const { id } = await this.userService.getByToken(refreshToken)
+    const user = await this.userService.getByToken(refreshToken)
 
-    await this.userService.updateToken(id, null)
+    await this.userService.updateToken(user.id, null)
 
     return true
   }

@@ -7,8 +7,8 @@ import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 
 @Module({
-  providers: [ UserService ],
   controllers: [ UserController ],
+  providers: [ UserService ],
   imports: [ 
     SequelizeModule.forFeature([ User ]),
     forwardRef(() => AuthModule),

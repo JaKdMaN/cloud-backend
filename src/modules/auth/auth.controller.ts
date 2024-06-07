@@ -23,7 +23,7 @@ export class AuthController {
     userWithToken.user = user
     userWithToken.token = accessToken
 
-    res.cookie('token', refreshToken, { httpOnly: true })
+    res.cookie('token', refreshToken, { httpOnly: true, sameSite: 'none', secure: true })
     res.status(200).send(userWithToken)
   }
 
@@ -36,7 +36,7 @@ export class AuthController {
     userWithToken.user = user
     userWithToken.token = accessToken
 
-    res.cookie('token', refreshToken, { httpOnly: true })
+    res.cookie('token', refreshToken, { httpOnly: true, sameSite: 'none', secure: true })
     res.status(201).send(userWithToken)
   }
 
@@ -53,9 +53,11 @@ export class AuthController {
 
   @UseGuards(AuthRefreshGuard)
   @Get('refresh')
-  refresh (@Req() req: Request) {
+  async refresh (@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies['token']
+    const tokens = await this.authService.refresh(refreshToken)
     
-    return this.authService.refresh(refreshToken)
+    res.cookie('token', tokens.refreshToken, { httpOnly: true })
+    res.status(200).send(tokens.accessToken)
   }
 }

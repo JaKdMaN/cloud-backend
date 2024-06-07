@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsEnum, IsOptional, IsPhoneNumber } from 'class-validator'
+import { IsString, IsEmail, IsEnum, IsOptional, IsPhoneNumber, IsNumber } from 'class-validator'
 import { UserGenderEnum } from '../enums/user-gender.enum'
 import { UserStartPageEnum } from '../enums/user-start-page.enum'
 
@@ -16,6 +16,10 @@ export class UpdateUserDto {
   @IsPhoneNumber()
   @IsOptional()
   readonly phone: string
+
+  @IsNumber()
+  @IsOptional()
+  readonly avatarId: number
 
   @IsString()
   @IsOptional()

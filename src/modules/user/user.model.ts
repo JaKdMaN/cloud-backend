@@ -1,6 +1,7 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript'
 import { UserGenderEnum } from './domain/enums/user-gender.enum'
 import { UserStartPageEnum } from './domain/enums/user-start-page.enum'
+import { File } from '../file/file.model'
 
 interface UserCreationAttrs {
   email: string
@@ -18,9 +19,6 @@ export class User extends Model<User, UserCreationAttrs>{
 
   @Column({ type: DataType.STRING, allowNull: true })
   surname: string
-
-  @Column({ type: DataType.STRING, allowNull: true })
-  avatar: string
 
   @Column({ type: DataType.STRING, allowNull: true })
   phone: string
@@ -42,4 +40,16 @@ export class User extends Model<User, UserCreationAttrs>{
 
   @Column({ type: DataType.STRING, allowNull: true })
   refreshToken: string
+
+  // ----------------------- Отношения ----------------------- //
+
+  @ForeignKey(() => File)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  avatarId: number
+
+  @BelongsTo(() => File)
+  avatar: File
+
+  @HasMany(() => File)
+  files: File[] 
 }
