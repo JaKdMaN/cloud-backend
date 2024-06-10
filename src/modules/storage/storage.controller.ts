@@ -28,6 +28,6 @@ export class StorageController {
     const accessToken = req.headers.authorization.split(' ')[1]
     const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
 
-    return this.storageService.getStorage(ownerId)
+    return this.storageService.getFolderStorage(ownerId, folderId)
   }
 }

@@ -27,4 +27,18 @@ export class StorageService {
 
     return entities
   }
+
+  async getFolderStorage (ownerId: number, folderId: number) {
+    const files = await this.fileService.getFilesFromFolder(ownerId, folderId)
+    const folders = await this.folderService.getFoldersFromFolder(ownerId, folderId)
+
+    const entities = plainToInstance(StorageEntityDto, [
+      ...files.map(file => ({ type: 'file', entity: file })),
+      ...folders.map(folder => ({ type: 'folder', entity: folder })),
+    ])
+
+    entities.sort((a, b) => new Date(a.entity.createdAt).getTime() - new Date(b.entity.createdAt).getTime())
+
+    return entities
+  }
 }
