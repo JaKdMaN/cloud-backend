@@ -9,18 +9,21 @@ import {
   UseInterceptors,
   UseGuards,
 } from '@nestjs/common'
-
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Request, Response } from 'express'
 import { diskStorage } from 'multer'
 
-import { FileService } from './services/file.service'
 import { AuthAccessGuard } from '../auth/guards/auth-access.guard'
+import { FileService } from './services/file.service'
+import { TokenService } from '../auth/services/token.service'
 
 @Controller('file')
 export class FileController {
 
-  constructor(private fileService: FileService) {}
+  constructor(
+    private fileService: FileService,
+    private tokenService: TokenService
+  ) {}
 
   @UseGuards(AuthAccessGuard)
   @Post('upload')
@@ -37,9 +40,10 @@ export class FileController {
     }),
   }))
   uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
-    const refreshToken = req.cookies['token']
+    const accessToken = req.headers.authorization.split(' ')[1]
+    const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
     
-    return this.fileService.create(file, refreshToken)
+    return this.fileService.create(file, ownerId)
   }
 
   @Get('upload/:filename')

@@ -68,23 +68,19 @@ export class AuthService {
     return { user: userDto, tokens }
   }
 
-  async logout (refreshToken: string) {
-    const user = await this.userService.getByToken(refreshToken)
-
-    await this.userService.updateToken(user.id, null)
-
-    return true
+  async logout (userId: number) {
+    await this.userService.updateToken(userId, null)
   }
 
-  async refresh (refreshToken: string) {
-    const { id, email } = await this.userService.getByToken(refreshToken)
+  async refresh (userId: number) {
+    const { email } = await this.userService.getById(userId)
 
     const tokens = await this.tokenService.getTokens({
-      sub: id,
+      sub: userId,
       username: email,
     })
 
-    await this.userService.updateToken(id, tokens.refreshToken)
+    await this.userService.updateToken(userId, tokens.refreshToken)
 
     return tokens
   }

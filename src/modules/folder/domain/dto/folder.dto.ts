@@ -1,28 +1,16 @@
 import { Expose, Type } from 'class-transformer'
 import { UserDto } from 'src/modules/user/domain/dto/user.dto'
 
-export class FileDto {
+export class FolderDto {
 
   @Expose()
   readonly id: number
 
   @Expose()
-  readonly fileType: string
-
-  @Expose()
-  readonly fileName: string
-
-  @Expose()
-  readonly originalName: string
-
-  @Expose()
-  readonly url: string
+  readonly name: string
 
   @Expose()
   readonly size: number
-
-  @Expose()
-  readonly extension: string
 
   @Expose()
   readonly createdAt: Date
@@ -33,4 +21,8 @@ export class FileDto {
   @Expose()
   @Type(() => UserDto)
   readonly owner: UserDto
+
+  @Expose()
+  @Type(() => FolderDto)
+  readonly parentFolder: FolderDto
 }

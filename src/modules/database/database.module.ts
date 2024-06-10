@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 
 import { User } from '../user/user.model'
 import { File } from '../file/file.model'
+import { Folder } from '../folder/folder.model'
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { File } from '../file/file.model'
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       autoLoadModels: true,
-      models: [ User, File ],
+      models: [ User, File, Folder ],
     }),
   ],
 })

@@ -17,8 +17,8 @@ export class UserService {
     return await this.getById(id)
   }
 
-  async getById (id: number): Promise<User| null> {
-    return await this.userRepository.findByPk(id, {
+  async getById (userId: number): Promise<User| null> {
+    return await this.userRepository.findByPk(userId, {
       include: [
         { 
           model: File, 
@@ -42,38 +42,25 @@ export class UserService {
     })
   }
 
-  async getByToken (refreshToken: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { refreshToken },
-      include: [
-        { 
-          model: File, 
-          as: 'avatar',
-          include: [{ model: User, as: 'owner' }],
-        },
-      ],
-    })
-  }
+  async update (userId: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findByPk(userId)
 
-  async update (refreshToken:string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { refreshToken } })
-
-    if (user) {
-      await user.update(updateUserDto)
-
-      return await this.getById(user.id)
+    if (!user) {
+      throw new HttpException('Пользователь не найден', HttpStatus.BAD_REQUEST)
     }
 
-    throw new HttpException('Пользователь не найден', HttpStatus.BAD_REQUEST)
+    await user.update(updateUserDto)
+
+    return await this.getById(user.id)
   }
 
-  async updateToken (id: number, refreshToken: string| null) {
-    const user = await this.userRepository.findByPk(id)
+  async updateToken (userId: number, refreshToken: string| null) {
+    const user = await this.userRepository.findByPk(userId)
 
-    if (user) {
-      return await user.update({ refreshToken })
+    if (!user) {
+      throw new HttpException('Пользователь не найден', HttpStatus.BAD_REQUEST)
     }
 
-    throw new HttpException('Пользователь не найден', HttpStatus.BAD_REQUEST)
+    return await user.update({ refreshToken })
   }
 }

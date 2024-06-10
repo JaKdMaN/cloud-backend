@@ -5,14 +5,18 @@ import { AuthLoginDto } from './domain/dto/auth-login.dto'
 import { AuthRegistrationDto } from './domain/dto/auth-registration.dto'
 import { UserWithTokenDto } from './domain/dto/user-with-token.dto'
 
-import { AuthService } from './services/auth.service'
 import { AuthAccessGuard } from './guards/auth-access.guard'
 import { AuthRefreshGuard } from './guards/auth-refresh.guard'
+import { AuthService } from './services/auth.service'
+import { TokenService } from './services/token.service'
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private tokenService: TokenService
+  ) {}
 
   @Post('login')
   async login (@Body() authLoginDto: AuthLoginDto, @Res() res: Response) {
@@ -43,9 +47,10 @@ export class AuthController {
   @UseGuards(AuthAccessGuard)
   @Post('logout')
   logout (@Req() req: Request, @Res() res: Response) {
-    const refreshToken: string = req.cookies['token']
+    const accessToken = req.headers.authorization.split(' ')[1]
+    const { sub: userId } = this.tokenService.decodeToken(accessToken)
 
-    this.authService.logout(refreshToken)
+    this.authService.logout(userId)
  
     res.clearCookie('token')
     res.status(200).send()
@@ -55,9 +60,11 @@ export class AuthController {
   @Get('refresh')
   async refresh (@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies['token']
-    const tokens = await this.authService.refresh(refreshToken)
+    const { sub: userId } = this.tokenService.decodeToken(refreshToken)
+
+    const tokens = await this.authService.refresh(userId)
     
-    res.cookie('token', tokens.refreshToken, { httpOnly: true })
+    res.cookie('token', tokens.refreshToken, { httpOnly: true, sameSite: 'none', secure: true })
     res.status(200).send(tokens.accessToken)
   }
 }

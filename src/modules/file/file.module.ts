@@ -18,5 +18,6 @@ import { AuthModule } from '../auth/auth.module'
     AuthModule,
     UserModule,
   ],
+  exports: [ FileService ],
 })
 export class FileModule {}

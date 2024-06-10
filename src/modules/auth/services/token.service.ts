@@ -26,4 +26,8 @@ export class TokenService {
 
     return { accessToken, refreshToken }
   }
+
+  decodeToken (token: string) {
+    return this.jwtService.decode(token)
+  }
 }

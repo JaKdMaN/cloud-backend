@@ -1,13 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { plainToClass } from 'class-transformer'
+import { plainToClass, plainToInstance } from 'class-transformer'
 
 import { File } from '../file.model'
+import { User } from 'src/modules/user/user.model'
 import { FileDto } from '../domain/dto/file.dto'
 
 import { ConfigService } from '@nestjs/config'
 import { UserService } from 'src/modules/user/services/user.service'
-import { User } from 'src/modules/user/user.model'
+import { UpdateFileDto } from '../domain/dto/update-file.dto'
+import { Folder } from 'src/modules/folder/folder.model'
 
 @Injectable()
 export class FileService {
@@ -18,13 +20,11 @@ export class FileService {
     private userService: UserService
   ) {}
 
-  async create (file: Express.Multer.File, refreshToken: string): Promise<FileDto> {
+  async create (file: Express.Multer.File, ownerId: number): Promise<FileDto> {
 
     if (!file) {
       throw new HttpException('Ошибка загрузки файла', HttpStatus.BAD_REQUEST)
     }
-
-    const owner = await this.userService.getByToken(refreshToken)
 
     const { filename, originalname, size, mimetype } = file
     const extension = `.${originalname.split('.')[1]}`
@@ -34,10 +34,11 @@ export class FileService {
       fileName: filename,
       originalName: originalname,
       url: this.getFileUrl(file),
+      createdAt: new Date(),
+      lastOpenedAt: new Date(),
+      ownerId,
       size,
       extension,
-      createdAt: new Date(),
-      ownerId: owner.id,
     })
 
     return await this.getById(newFile.id)
@@ -51,6 +52,26 @@ export class FileService {
     return plainToClass(FileDto, file, { excludeExtraneousValues: true })
   }
 
+  async getFiles (ownerId: number) {
+    const files = await this.fileRepository.findAll({
+      raw: true,
+      where: { ownerId },
+      include: [{ model: User, as: 'owner' }],
+    })
+
+    return plainToInstance(FileDto, files, { excludeExtraneousValues: true })
+  }
+
+  async getFilesFromFolder (ownerId: number, parentFolderId: number) {
+    const filesFromFolder = await this.fileRepository.findAll({
+      raw: true,
+      where: [{ ownerId, parentFolderId }],
+      include: [{ model: User, as: 'owner' }],
+    })
+
+    return plainToInstance(FileDto, filesFromFolder, { excludeExtraneousValues: true })
+  }
+
   async getByName (fileName: string) {
     const file = await this.fileRepository.findOne({
       where: { fileName },
@@ -58,6 +79,19 @@ export class FileService {
     })
 
     return plainToClass(FileDto, file, { excludeExtraneousValues: true })
+  }
+
+  async update (fileId: number, updateFileDto: UpdateFileDto) {
+    const file = await this.fileRepository.findByPk(fileId, {
+      include: [
+        { model: User, as: 'owner' },
+        { model: Folder, as: 'parentFolder' },
+      ],
+    })
+
+    await file.update(updateFileDto)
+
+    return await this.getById(file.id)
   }
 
   getFileUrl (file: Express.Multer.File): string {

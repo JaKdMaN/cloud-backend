@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from '
 import { UserGenderEnum } from './domain/enums/user-gender.enum'
 import { UserStartPageEnum } from './domain/enums/user-start-page.enum'
 import { File } from '../file/file.model'
+import { Folder } from '../folder/folder.model'
 
 interface UserCreationAttrs {
   email: string
@@ -50,6 +51,9 @@ export class User extends Model<User, UserCreationAttrs>{
   @BelongsTo(() => File)
   avatar: File
 
-  @HasMany(() => File)
+  @HasMany(() => File, { onDelete: 'CASCADE' })
   files: File[] 
+
+  @HasMany(() => Folder, { onDelete: 'CASCADE' })
+  folders: Folder[]
 }
