@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { ConfigModule } from '@nestjs/config'
 
 import { File } from './file.model'
 
@@ -14,7 +13,6 @@ import { AuthModule } from '../auth/auth.module'
   providers: [ FileService ],
   imports: [
     SequelizeModule.forFeature([ File ]),
-    ConfigModule,
     AuthModule,
     UserModule,
   ],

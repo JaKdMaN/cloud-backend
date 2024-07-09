@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { plainToClass, plainToInstance } from 'class-transformer'
 
-
 import { Folder } from '../folder.model'
 import { User } from 'src/modules/user/user.model'
 import { FolderDto } from '../domain/dto/folder.dto'
@@ -22,7 +21,7 @@ export class FolderService {
   ) {}
 
   async create (ownerId: number, createFolderDto: CreateFolderDto) {
-    const { name, parentFolderId } = createFolderDto
+    const { name } = createFolderDto
     const { id } = await this.folderRepository.create({
       name,
       size: 0,
@@ -30,11 +29,7 @@ export class FolderService {
       lastOpenedAt: new Date(),
       ownerId,
     })
-
-    if (parentFolderId) {
-      await this.addFolder(parentFolderId, id)
-    }
-
+    
     return await this.getById(id)
   }
 
@@ -49,7 +44,7 @@ export class FolderService {
   async getFolders (ownerId: number) {
     const folders = await this.folderRepository.findAll({
       raw: true,
-      where: [{ ownerId }],
+      where: [{ ownerId, parentFolderId: null }],
     })
 
     return plainToInstance(FolderDto, folders, { excludeExtraneousValues: true })
@@ -73,11 +68,11 @@ export class FolderService {
     
     await folder.update(updateFolderDto)
       
-    return this.getById(folder.id)
+    return await this.getById(folder.id)
   }
 
   async addEntities (folderId: number, addEntitiesToFolderDto: AddEntitiesToFolderDto) {
-    const folder = this.getById(folderId)
+    const folder = await this.getById(folderId)
 
     if (!folder) {
       throw new HttpException('Такой папки не существует', HttpStatus.BAD_REQUEST)
@@ -109,7 +104,7 @@ export class FolderService {
     await folder.update({ size: folder.size + addedFolder.size })
     await addedFolder.update({ parentFolderId: folderId })
 
-    return this.getById(addedFolder.id)
+    return await this.getById(addedFolder.id)
   }
 
   async addfile (folderId: number, addedFileId: number) {

@@ -17,6 +17,7 @@ import { Folder } from '../folder/folder.model'
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       autoLoadModels: true,
+      synchronize: true,
       models: [ User, File, Folder ],
     }),
   ],

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, Put, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common'
 import { Request } from 'express'
 
 import { CreateFolderDto } from './domain/dto/create-folder.dto'
@@ -27,6 +27,12 @@ export class FolderController {
   }
 
   @UseGuards(AuthAccessGuard)
+  @Get(':folderId')
+  getFolder(@Param('folderId') folderId: number) {
+    return this.folderService.getById(folderId)
+  }
+
+  @UseGuards(AuthAccessGuard)
   @Put(':folderId')
   updateFolder (@Param('folderId') folderId: number, @Body() updateFolderDto: UpdateFolderDto) {
     return this.folderService.update(folderId, updateFolderDto)
@@ -34,7 +40,7 @@ export class FolderController {
 
   @UseGuards(AuthAccessGuard)
   @Put(':folderId/add-entities')
-  addEntities (@Param() folderId: number, @Body() addEntitiesToFolderDto: AddEntitiesToFolderDto) {
+  addEntities (@Param('folderId') folderId: number, @Body() addEntitiesToFolderDto: AddEntitiesToFolderDto) {
     return this.folderService.addEntities(folderId, addEntitiesToFolderDto)
   }
 

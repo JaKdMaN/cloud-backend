@@ -4,7 +4,6 @@ import { UserController } from './user.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { User } from './user.model'
 import { AuthModule } from '../auth/auth.module'
-import { ConfigModule } from '@nestjs/config'
 
 @Module({
   controllers: [ UserController ],
@@ -12,7 +11,6 @@ import { ConfigModule } from '@nestjs/config'
   imports: [ 
     SequelizeModule.forFeature([ User ]),
     forwardRef(() => AuthModule),
-    ConfigModule,
   ],
   exports: [ UserService ],
 })

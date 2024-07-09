@@ -55,7 +55,7 @@ export class FileService {
   async getFiles (ownerId: number) {
     const files = await this.fileRepository.findAll({
       raw: true,
-      where: { ownerId },
+      where: { ownerId, parentFolderId: null },
       include: [{ model: User, as: 'owner' }],
     })
 
@@ -94,11 +94,21 @@ export class FileService {
     return await this.getById(file.id)
   }
 
+  async delete (fileId: number) {
+    const file = await this.fileRepository.findByPk(fileId)
+
+    if (!file) {
+      throw new HttpException('Такого файла не существует', HttpStatus.BAD_REQUEST)
+    }
+
+    return await file.destroy()
+  }
+
   getFileUrl (file: Express.Multer.File): string {
     const { filename } = file
 
     const fileUrl = 
-      `${this.configService.get<string>('API_URL')}:5000/api/file/upload/${filename}`
+      `${this.configService.get<string>('API_URL')}:5000/api/file/${filename}`
 
     return fileUrl
   }

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { ConfigModule } from '@nestjs/config'
 import { FileModule } from '../file/file.module'
 
 import { Folder } from './folder.model'
@@ -14,7 +13,6 @@ import { FolderService } from './services/folder.service'
   providers: [ FolderService ],
   imports: [
     SequelizeModule.forFeature([ Folder ]),
-    ConfigModule,
     AuthModule,
     FileModule,
   ],

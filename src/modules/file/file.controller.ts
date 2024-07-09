@@ -8,6 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
+  Delete,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Request, Response } from 'express'
@@ -46,11 +47,16 @@ export class FileController {
     return this.fileService.create(file, ownerId)
   }
 
-  @Get('upload/:filename')
+  @Get(':filename')
   async getFile (@Param('filename') filename: string, @Res() res: Response) {
     const { originalName } = await this.fileService.getByName(filename)
     
     res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`)
     res.sendFile(filename, { root: './uploads' })
+  }
+
+  @Delete(':fileId')
+  deleteFile (@Param('fileId') fileId: number) {
+    return this.fileService.delete(fileId)
   }
 }

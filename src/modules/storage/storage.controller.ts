@@ -23,8 +23,8 @@ export class StorageController {
   }
 
   @UseGuards(AuthAccessGuard)
-  @Get(':folderId')
-  getFolderStorage (@Param() folderId: number, @Req() req: Request) {
+  @Get('folders/:folderId')
+  getFolderStorage (@Param('folderId') folderId: number, @Req() req: Request) {
     const accessToken = req.headers.authorization.split(' ')[1]
     const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
 

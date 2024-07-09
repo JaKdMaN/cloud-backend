@@ -8,7 +8,6 @@ import { TokenService } from './services/token.service'
 
 import { JwtModule } from '@nestjs/jwt'
 import { UserModule } from '../user/user.module'
-import { ConfigModule } from '@nestjs/config'
 
 @Module({
   controllers: [ AuthController ],
@@ -19,7 +18,6 @@ import { ConfigModule } from '@nestjs/config'
   ],
   imports: [
     JwtModule.register({}),
-    ConfigModule,
     forwardRef(() => UserModule),
   ],
   exports: [

@@ -23,7 +23,7 @@ export class StorageService {
       ...folders.map(folder => ({ type: 'folder', entity: folder })),
     ])
 
-    entities.sort((a, b) => new Date(a.entity.createdAt).getTime() - new Date(b.entity.createdAt).getTime())
+    entities.sort((a, b) => new Date(b.entity.createdAt).getTime() - new Date(a.entity.createdAt).getTime())
 
     return entities
   }
