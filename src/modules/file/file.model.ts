@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript'
 import { User } from '../user/user.model'
-import { Folder } from '../folder/folder.model'
+import { StorageEntity } from '../storage/storage-entity.model'
 
 interface FileCreationAttrs {
   fileType: string
@@ -57,10 +57,6 @@ export class File extends Model<File,FileCreationAttrs> {
   @HasOne(() => User)
   user: User
 
-  @ForeignKey(() => Folder)
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  parentFolderId: number
-
-  @BelongsTo(() => Folder)
-  parentFolder: Folder
+  @HasOne(() => StorageEntity)
+  storageEntity: StorageEntity
 }

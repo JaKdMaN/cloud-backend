@@ -2,6 +2,8 @@ import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } 
 import { Observable } from 'rxjs'
 import { Request } from 'express'
 
+import { JwtVerifiedUserType } from '../domain/types/jwt-verified-user.type'
+
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 
@@ -24,7 +26,7 @@ export class AuthAccessGuard implements CanActivate {
         throw new HttpException('Invalid Token', HttpStatus.UNAUTHORIZED)
       }
 
-      const user = this.jwtService.verify(token, {
+      const user: JwtVerifiedUserType = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
       })
       req.user = user

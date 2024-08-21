@@ -8,7 +8,6 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
-  Delete,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Request, Response } from 'express'
@@ -53,10 +52,5 @@ export class FileController {
     
     res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`)
     res.sendFile(filename, { root: './uploads' })
-  }
-
-  @Delete(':fileId')
-  deleteFile (@Param('fileId') fileId: number) {
-    return this.fileService.delete(fileId)
   }
 }

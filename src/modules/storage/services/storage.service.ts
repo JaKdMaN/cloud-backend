@@ -1,44 +1,62 @@
 import { Injectable } from '@nestjs/common'
-import { plainToInstance } from 'class-transformer'
+import { InjectModel } from '@nestjs/sequelize'
+import { plainToClass, plainToInstance } from 'class-transformer'
 
+import { StorageEntity } from '../storage-entity.model'
+import { File } from 'src/modules/file/file.model'
+import { Folder } from 'src/modules/folder/folder.model'
+import { AddStorageEntityDto } from '../domain/dto/add-storage-entity.dto'
+import { StorageEntityTypeEnum } from '../domain/enums/storage-entity-type.enum'
 import { StorageEntityDto } from '../domain/dto/storage-entity.dto'
-
-import { FileService } from 'src/modules/file/services/file.service'
-import { FolderService } from 'src/modules/folder/services/folder.service'
+import { FileDto } from 'src/modules/file/domain/dto/file.dto'
+import { FolderDto } from 'src/modules/folder/domain/dto/folder.dto'
 
 @Injectable()
 export class StorageService {
 
-  constructor(
-    private fileService: FileService,
-    private folderService: FolderService
-  ) {}
+  constructor(@InjectModel(StorageEntity) private storageEntityRepository: typeof StorageEntity) {}
 
-  async getStorage (ownerId: number) {
-    const files = await this.fileService.getFiles(ownerId) 
-    const folders = await this.folderService.getFolders(ownerId)
+  async addEntity (userId:number, addStorageEntityDto: AddStorageEntityDto) {
+    const { entityId, type, parentFolderId } = addStorageEntityDto
 
-    const entities = plainToInstance(StorageEntityDto, [
-      ...files.map(file => ({ type: 'file', entity: file })),
-      ...folders.map(folder => ({ type: 'folder', entity: folder })),
-    ])
+    const entityIdType = type === StorageEntityTypeEnum.FILE ? 'fileId' : 'folderId'
 
-    entities.sort((a, b) => new Date(b.entity.createdAt).getTime() - new Date(a.entity.createdAt).getTime())
+    const entity = await this.storageEntityRepository.create({
+      userId,
+      type,
+      parentFolderId,
+      [entityIdType]: entityId,
+    })
 
-    return entities
+    return plainToClass(StorageEntityDto, entity, { excludeExtraneousValues: true })
   }
 
-  async getFolderStorage (ownerId: number, folderId: number) {
-    const files = await this.fileService.getFilesFromFolder(ownerId, folderId)
-    const folders = await this.folderService.getFoldersFromFolder(ownerId, folderId)
+  async getStorage (userId: number) {
+    const storageEntities = await this.storageEntityRepository.findAll({
+      where: { userId, parentFolderId: null },
+      order: [[ 'id', 'DESC' ]],
+      include: [
+        { model: Folder, as: 'folder' },
+        { model: File, as: 'file' },
+      ],
+    })
 
-    const entities = plainToInstance(StorageEntityDto, [
-      ...files.map(file => ({ type: 'file', entity: file })),
-      ...folders.map(folder => ({ type: 'folder', entity: folder })),
+    return plainToInstance(StorageEntityDto, [
+      ...storageEntities.map(entity => this.formatStorageEntity(entity)),
     ])
+  }
 
-    entities.sort((a, b) => new Date(a.entity.createdAt).getTime() - new Date(b.entity.createdAt).getTime())
+  formatStorageEntity (storageEntity: StorageEntity): StorageEntityDto {
+    const { id, type, file, folder } = storageEntity
 
-    return entities
+    const formatedEntity = type === StorageEntityTypeEnum.FILE ?
+      plainToClass(FileDto, file, { excludeExtraneousValues: true }) :
+      plainToClass(FolderDto, folder, { excludeExtraneousValues: true })
+
+    return {
+      id,
+      type,
+      entity: formatedEntity,
+    }
   }
 }

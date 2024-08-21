@@ -1,17 +1,15 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript'
-import { File } from 'src/modules/file/file.model'
-import { User } from 'src/modules/user/user.model'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript'
+import { User } from '../user/user.model'
+import { StorageEntity } from '../storage/storage-entity.model'
 
 interface FolderCreationAttrs {
   name: string
   size: number
-  createdAt: Date
-  lastOpenedAt: Date
   ownerId: number
-  parentFolderId?: number
+  createdAt: Date
 }
 
-@Table({ tableName: 'folders', createdAt: false, updatedAt: false })
+@Table({ tableName: 'folder', updatedAt: false })
 export class Folder extends Model<Folder, FolderCreationAttrs> {
 
   @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
@@ -26,9 +24,6 @@ export class Folder extends Model<Folder, FolderCreationAttrs> {
   @Column({ type: DataType.DATE, allowNull: false })
   createdAt: Date
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  lastOpenedAt: Date
-
   // ----------------------- Отношения ----------------------- //
 
   @ForeignKey(() => User)
@@ -38,16 +33,9 @@ export class Folder extends Model<Folder, FolderCreationAttrs> {
   @BelongsTo(() => User)
   owner: User
 
-  @ForeignKey(() => Folder)
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  parentFolderId: number
+  @HasOne(() => StorageEntity)
+  storageEntity: StorageEntity
 
-  @BelongsTo(() => Folder)
-  parentFolder: Folder
-
-  @HasMany(() => Folder, { onDelete: 'CASCADE' })
-  folders: Folder[]
-
-  @HasMany(() => File, { onDelete: 'CASCADE' })
-  files: File[]
+  @HasMany(() => StorageEntity)
+  storageEntities: StorageEntity[]
 }
