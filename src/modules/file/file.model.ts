@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript'
 import { User } from '../user/user.model'
-import { StorageEntity } from '../storage/storage-entity.model'
+import { DiskEntity } from '../disk-entity/disk-entity.model'
 
 interface FileCreationAttrs {
   fileType: string
@@ -42,9 +42,6 @@ export class File extends Model<File,FileCreationAttrs> {
   @Column({ type: DataType.DATE, allowNull: false })
   createdAt: Date
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  lastOpenedAt: Date
-
   // ----------------------- Отношения ----------------------- //
 
   @ForeignKey(() => User)
@@ -57,6 +54,6 @@ export class File extends Model<File,FileCreationAttrs> {
   @HasOne(() => User)
   user: User
 
-  @HasOne(() => StorageEntity)
-  storageEntity: StorageEntity
+  @HasOne(() => DiskEntity)
+  diskEntity: DiskEntity
 }

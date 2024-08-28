@@ -5,18 +5,14 @@ import { plainToClass } from 'class-transformer'
 import { File } from '../file.model'
 import { User } from 'src/modules/user/user.model'
 import { FileDto } from '../domain/dto/file.dto'
-import { StorageEntityTypeEnum } from 'src/modules/storage/domain/enums/storage-entity-type.enum'
-
 import { ConfigService } from '@nestjs/config'
-import { StorageService } from 'src/modules/storage/services/storage.service'
 
 @Injectable()
 export class FileService {
 
   constructor(
     @InjectModel(File) private fileRepository: typeof File,
-    private configService: ConfigService,
-    private storageService: StorageService
+    private configService: ConfigService
   ) {}
 
   async create (file: Express.Multer.File, ownerId: number): Promise<FileDto> {
@@ -38,11 +34,6 @@ export class FileService {
       ownerId,
       size,
       extension,
-    })
-
-    await this.storageService.addEntity(ownerId, {
-      entityId: newFile.id,
-      type: StorageEntityTypeEnum.FILE,
     })
 
     return await this.getById(newFile.id)

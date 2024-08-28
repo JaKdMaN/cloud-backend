@@ -1,15 +1,15 @@
 import { Expose } from 'class-transformer'
-import { StorageEntityTypeEnum } from '../enums/storage-entity-type.enum'
+import { DiskEntityTypeEnum } from '../enums/disk-entity-type.enum'
 import { FileDto } from 'src/modules/file/domain/dto/file.dto'
 import { FolderDto } from 'src/modules/folder/domain/dto/folder.dto'
 
-export class StorageEntityDto {
+export class DiskEntityDto {
 
   @Expose()
   id: number
 
   @Expose()
-  type: StorageEntityTypeEnum
+  type: DiskEntityTypeEnum
 
   @Expose()
   entity: FileDto | FolderDto

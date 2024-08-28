@@ -18,8 +18,4 @@ export class FolderDto {
   @Expose()
   @Type(() => UserDto)
   readonly owner: UserDto
-
-  @Expose()
-  @Type(() => FolderDto)
-  readonly parentFolder: FolderDto
 }

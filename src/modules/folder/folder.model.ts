@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript'
 import { User } from '../user/user.model'
-import { StorageEntity } from '../storage/storage-entity.model'
+import { DiskEntity } from '../disk-entity/disk-entity.model'
 
 interface FolderCreationAttrs {
   name: string
@@ -33,9 +33,9 @@ export class Folder extends Model<Folder, FolderCreationAttrs> {
   @BelongsTo(() => User)
   owner: User
 
-  @HasOne(() => StorageEntity)
-  storageEntity: StorageEntity
+  @HasOne(() => DiskEntity)
+  diskEntity: DiskEntity
 
-  @HasMany(() => StorageEntity)
-  storageEntities: StorageEntity[]
+  @HasMany(() => DiskEntity, { onDelete: 'CASCADE' })
+  diskEntities: DiskEntity[]
 }

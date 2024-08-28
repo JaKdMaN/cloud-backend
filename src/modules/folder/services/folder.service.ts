@@ -5,19 +5,22 @@ import { plainToClass } from 'class-transformer'
 import { Folder } from '../folder.model'
 import { FolderDto } from '../domain/dto/folder.dto'
 import { CreateFolderDto } from '../domain/dto/create-folder.dto'
-import { StorageEntityTypeEnum } from 'src/modules/storage/domain/enums/storage-entity-type.enum'
+import { DiskEntityDto } from 'src/modules/disk-entity/domain/dto/disk-entity.dto'
+import { DiskEntityTypeEnum } from 'src/modules/disk-entity/domain/enums/disk-entity-type.enum'
 
-import { StorageService } from 'src/modules/storage/services/storage.service'
+import { FileService } from 'src/modules/file/services/file.service'
+import { DiskEntityService } from 'src/modules/disk-entity/services/disk-entity.service'
 
 @Injectable()
 export class FolderService {
 
   constructor(
     @InjectModel(Folder) private folderRepository: typeof Folder,
-    private storageService: StorageService
+    private diskEntityService: DiskEntityService,
+    private fileService: FileService
   ) {}
 
-  async create (ownerId: number, createFolderDto: CreateFolderDto) {
+  async create (createFolderDto: CreateFolderDto, ownerId: number): Promise<FolderDto> {
     const { name } = createFolderDto
 
     const newFolder = await this.folderRepository.create({
@@ -27,11 +30,43 @@ export class FolderService {
       createdAt: new Date(),
     })
 
-    await this.storageService.addEntity(ownerId, {
-      entityId: newFolder.id,
-      type: StorageEntityTypeEnum.FOLDER,
-    })
-
     return plainToClass(FolderDto, newFolder, { excludeExtraneousValues: true })
+  }
+
+  async addFile (
+    file: Express.Multer.File,
+    userId: number,
+    parentFolderId: number
+  ): Promise<DiskEntityDto> {
+    const { id } = await this.fileService.create(file, userId)
+
+    return await this.diskEntityService.createInFolder({
+      userId,
+      type: DiskEntityTypeEnum.FILE,
+      fileId: id,
+      parentFolderId,
+    })
+  }
+
+  async addFolder (
+    createFolderDto: CreateFolderDto,
+    userId: number,
+    parentFolderId: number
+  ): Promise<DiskEntityDto> {
+    const { id } = await this.create(createFolderDto, userId)
+
+    return await this.diskEntityService.createInFolder({
+      userId,
+      type: DiskEntityTypeEnum.FOLDER,
+      folderId: id,
+      parentFolderId,
+    })
+  }
+
+  async getContent (userId: number, parentFolderId: number): Promise<DiskEntityDto[]> {
+    return await this.diskEntityService.getAll({ 
+      where: { userId, parentFolderId },
+      order: [ ['id', 'DESC'] ],
+    })
   }
 }
