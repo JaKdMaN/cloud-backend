@@ -43,4 +43,10 @@ export class FolderController {
   ) {
     return this.folderService.getContent(userId, parentFolderId)
   }
+
+  @UseGuards(AuthAccessGuard)
+  @Get(':folderId/parents')
+  getFolderParentsPath (@Param('folderId') folderId: number) {
+    return this.folderService.getParentsPath(folderId)
+  }
 }

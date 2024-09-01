@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { plainToClass } from 'class-transformer'
 
@@ -6,9 +6,7 @@ import { Folder } from '../folder.model'
 import { FolderDto } from '../domain/dto/folder.dto'
 import { CreateFolderDto } from '../domain/dto/create-folder.dto'
 import { DiskEntityDto } from 'src/modules/disk-entity/domain/dto/disk-entity.dto'
-import { DiskEntityTypeEnum } from 'src/modules/disk-entity/domain/enums/disk-entity-type.enum'
 
-import { FileService } from 'src/modules/file/services/file.service'
 import { DiskEntityService } from 'src/modules/disk-entity/services/disk-entity.service'
 
 @Injectable()
@@ -16,8 +14,7 @@ export class FolderService {
 
   constructor(
     @InjectModel(Folder) private folderRepository: typeof Folder,
-    private diskEntityService: DiskEntityService,
-    private fileService: FileService
+    @Inject(forwardRef(() => DiskEntityService)) private diskEntityService: DiskEntityService
   ) {}
 
   async create (createFolderDto: CreateFolderDto, ownerId: number): Promise<FolderDto> {
@@ -38,14 +35,7 @@ export class FolderService {
     userId: number,
     parentFolderId: number
   ): Promise<DiskEntityDto> {
-    const { id } = await this.fileService.create(file, userId)
-
-    return await this.diskEntityService.createInFolder({
-      userId,
-      type: DiskEntityTypeEnum.FILE,
-      fileId: id,
-      parentFolderId,
-    })
+    return await this.diskEntityService.createFileEntity(file, userId, parentFolderId)
   }
 
   async addFolder (
@@ -53,14 +43,7 @@ export class FolderService {
     userId: number,
     parentFolderId: number
   ): Promise<DiskEntityDto> {
-    const { id } = await this.create(createFolderDto, userId)
-
-    return await this.diskEntityService.createInFolder({
-      userId,
-      type: DiskEntityTypeEnum.FOLDER,
-      folderId: id,
-      parentFolderId,
-    })
+    return await this.diskEntityService.createFolderEntity(createFolderDto,userId, parentFolderId)
   }
 
   async getContent (userId: number, parentFolderId: number): Promise<DiskEntityDto[]> {
@@ -68,5 +51,9 @@ export class FolderService {
       where: { userId, parentFolderId },
       order: [ ['id', 'DESC'] ],
     })
+  }
+
+  async getParentsPath (folderId: number) {
+    return await this.diskEntityService.getParentsPath(folderId)
   }
 }
