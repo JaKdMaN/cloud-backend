@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config'
 import { User } from '../user/user.model'
 import { File } from '../file/file.model'
 import { Folder } from '../folder/folder.model'
+import { DiskEntity } from '../disk-entity/disk-entity.model'
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { Folder } from '../folder/folder.model'
       database: process.env.POSTGRES_DB,
       autoLoadModels: true,
       synchronize: true,
-      models: [ User, File, Folder ],
+      models: [ User, File, Folder, DiskEntity ],
     }),
   ],
 })

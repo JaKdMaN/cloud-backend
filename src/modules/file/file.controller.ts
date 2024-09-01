@@ -8,15 +8,13 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
-  Delete,
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
 import { Request, Response } from 'express'
-import { diskStorage } from 'multer'
 
 import { AuthAccessGuard } from '../auth/guards/auth-access.guard'
 import { FileService } from './services/file.service'
 import { TokenService } from '../auth/services/token.service'
+import { UploadFileInterceptor } from 'src/interceptors/upload-file.interceptor'
 
 @Controller('file')
 export class FileController {
@@ -28,18 +26,7 @@ export class FileController {
 
   @UseGuards(AuthAccessGuard)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, callback) => {
-        const originalName = Buffer.from(file.originalname, 'latin1').toString('utf-8')
-        const [ name, extenstion ] = originalName.split('.')
-        const newFileName = `${name.split(' ').join('-')}_${Date.now()}.${extenstion}`
-
-        callback(null, newFileName)
-      },
-    }),
-  }))
+  @UseInterceptors(UploadFileInterceptor)
   uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
     const accessToken = req.headers.authorization.split(' ')[1]
     const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
@@ -53,10 +40,5 @@ export class FileController {
     
     res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`)
     res.sendFile(filename, { root: './uploads' })
-  }
-
-  @Delete(':fileId')
-  deleteFile (@Param('fileId') fileId: number) {
-    return this.fileService.delete(fileId)
   }
 }

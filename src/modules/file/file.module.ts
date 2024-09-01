@@ -5,7 +5,6 @@ import { File } from './file.model'
 
 import { FileController } from './file.controller'
 import { FileService } from './services/file.service'
-import { UserModule } from '../user/user.module'
 import { AuthModule } from '../auth/auth.module'
 
 @Module({
@@ -14,7 +13,6 @@ import { AuthModule } from '../auth/auth.module'
   imports: [
     SequelizeModule.forFeature([ File ]),
     AuthModule,
-    UserModule,
   ],
   exports: [ FileService ],
 })

@@ -16,13 +16,6 @@ export class FolderDto {
   readonly createdAt: Date
 
   @Expose()
-  readonly lastOpenedAt: Date
-
-  @Expose()
   @Type(() => UserDto)
   readonly owner: UserDto
-
-  @Expose()
-  @Type(() => FolderDto)
-  readonly parentFolder: FolderDto
 }
