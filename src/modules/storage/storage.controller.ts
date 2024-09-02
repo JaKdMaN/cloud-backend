@@ -1,33 +1,41 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common'
-import { Request } from 'express'
+import { Body, Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { UploadFileInterceptor } from 'src/interceptors/upload-file.interceptor'
+import { User } from 'src/decorators/user.decorator'
 
-import { AuthAccessGuard } from '../auth/guards/auth-access.guard'
+import { DiskEntityDto } from '../disk-entity/domain/dto/disk-entity.dto'
+import { JwtVerifiedUserType } from '../auth/domain/types/jwt-verified-user.type'
+
 import { StorageService } from './services/storage.service'
-import { TokenService } from '../auth/services/token.service'
+import { AuthAccessGuard } from '../auth/guards/auth-access.guard'
+import { CreateFolderDto } from '../folder/domain/dto/create-folder.dto'
 
 @Controller('storage')
 export class StorageController {
 
-  constructor(
-    private storageService: StorageService,
-    private tokenService: TokenService
-  ) {}
+  constructor (private storageService: StorageService) {}
 
   @UseGuards(AuthAccessGuard)
-  @Get()
-  getStorage (@Req() req: Request) {
-    const accessToken = req.headers.authorization.split(' ')[1]
-    const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
-
-    return this.storageService.getStorage(ownerId)
+  @Post('add-file')
+  @UseInterceptors(UploadFileInterceptor)
+  addFile (
+    @UploadedFile() file: Express.Multer.File,
+    @User() { sub: userId }: JwtVerifiedUserType
+  ): Promise<DiskEntityDto> {
+    return this.storageService.addFile(file, userId)
   }
 
   @UseGuards(AuthAccessGuard)
-  @Get('folders/:folderId')
-  getFolderStorage (@Param('folderId') folderId: number, @Req() req: Request) {
-    const accessToken = req.headers.authorization.split(' ')[1]
-    const { sub: ownerId } = this.tokenService.decodeToken(accessToken)
+  @Post('add-folder')
+  addFolder (
+    @Body() createFolderDto: CreateFolderDto,
+    @User() { sub: userId }: JwtVerifiedUserType
+  ): Promise<DiskEntityDto> {
+    return this.storageService.addFolder(createFolderDto, userId)
+  }
 
-    return this.storageService.getFolderStorage(ownerId, folderId)
+  @UseGuards(AuthAccessGuard)
+  @Get()
+  getStorage (@User() { sub: userId }: JwtVerifiedUserType) {
+    return this.storageService.getAll(userId)
   }
 }

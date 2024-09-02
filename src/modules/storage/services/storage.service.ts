@@ -1,44 +1,29 @@
 import { Injectable } from '@nestjs/common'
-import { plainToInstance } from 'class-transformer'
 
-import { StorageEntityDto } from '../domain/dto/storage-entity.dto'
+import { CreateFolderDto } from 'src/modules/folder/domain/dto/create-folder.dto'
+import { DiskEntityDto } from 'src/modules/disk-entity/domain/dto/disk-entity.dto'
 
-import { FileService } from 'src/modules/file/services/file.service'
-import { FolderService } from 'src/modules/folder/services/folder.service'
+import { DiskEntityService } from 'src/modules/disk-entity/services/disk-entity.service'
 
 @Injectable()
 export class StorageService {
 
-  constructor(
-    private fileService: FileService,
-    private folderService: FolderService
+  constructor (
+    private diskEntityService: DiskEntityService
   ) {}
-
-  async getStorage (ownerId: number) {
-    const files = await this.fileService.getFiles(ownerId) 
-    const folders = await this.folderService.getFolders(ownerId)
-
-    const entities = plainToInstance(StorageEntityDto, [
-      ...files.map(file => ({ type: 'file', entity: file })),
-      ...folders.map(folder => ({ type: 'folder', entity: folder })),
-    ])
-
-    entities.sort((a, b) => new Date(b.entity.createdAt).getTime() - new Date(a.entity.createdAt).getTime())
-
-    return entities
+  
+  async addFile (file: Express.Multer.File, userId: number): Promise<DiskEntityDto> {
+    return await this.diskEntityService.createFileEntity(file, userId)
   }
 
-  async getFolderStorage (ownerId: number, folderId: number) {
-    const files = await this.fileService.getFilesFromFolder(ownerId, folderId)
-    const folders = await this.folderService.getFoldersFromFolder(ownerId, folderId)
+  async addFolder (createFolderDto: CreateFolderDto, userId: number): Promise<DiskEntityDto> {
+    return await this.diskEntityService.createFolderEntity(createFolderDto, userId)
+  }
 
-    const entities = plainToInstance(StorageEntityDto, [
-      ...files.map(file => ({ type: 'file', entity: file })),
-      ...folders.map(folder => ({ type: 'folder', entity: folder })),
-    ])
-
-    entities.sort((a, b) => new Date(a.entity.createdAt).getTime() - new Date(b.entity.createdAt).getTime())
-
-    return entities
+  async getAll (userId: number): Promise<DiskEntityDto[]> {
+    return await this.diskEntityService.getAll({ 
+      where: { userId, parentFolderId: null },
+      order: [ ['id', 'DESC'] ],
+    })
   }
 }
