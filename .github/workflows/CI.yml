@@ -5,8 +5,9 @@ on:
   pull_request:
     branches: [ master ]
 jobs:
-  build:
+  Dependencies:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -16,8 +17,72 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Dependencies
-        run: npm install
+      - name: Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os}}-node-
+
+      - name: Install Dependencies       
+        run: npm ci
+        if: steps.cache-deps.outputs.cache-hit != 'true'
 
       - name: build project
+        run: npm run build
+  
+  Lint:
+    name: Lint code
+    runs-on: ubunu-latest
+    needs: Dependencies
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Starting Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Restore dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node
+          
+      - name: Run Lint
+        run: npm run lint
+
+  Build:
+    name: build
+    runs-on: ubunu-latest
+    needs: Lint
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Starting Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Restore dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node
+          
+      - name: Build Lint
         run: npm run build
