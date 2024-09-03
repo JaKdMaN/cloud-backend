@@ -17,6 +17,6 @@ async function start() {
   })
   app.useGlobalPipes(new ValidationPipe())
   
-  await app.listen(PORT, () => console.log('server started on port ' + PORT))
+  await app.listen(PORT)
 }
 start()
