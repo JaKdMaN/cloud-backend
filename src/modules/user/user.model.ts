@@ -3,6 +3,7 @@ import { UserGenderEnum } from './domain/enums/user-gender.enum'
 import { UserStartPageEnum } from './domain/enums/user-start-page.enum'
 import { File } from '../file/file.model'
 import { Folder } from '../folder/folder.model'
+import { DiskEntity } from '../disk-entity/disk-entity.model'
 
 interface UserCreationAttrs {
   email: string
@@ -56,4 +57,7 @@ export class User extends Model<User, UserCreationAttrs>{
 
   @HasMany(() => Folder, { onDelete: 'CASCADE' })
   folders: Folder[]
+
+  @HasMany(() => DiskEntity, { onDelete: 'CASCADE' })
+  diskEntities: DiskEntity[]
 }

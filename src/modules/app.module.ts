@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module'
 import { FolderModule } from './folder/folder.module'
 import { FileModule } from './file/file.module'
 import { StorageModule } from './storage/storage.module'
+import { DiskEntityModule } from './disk-entity/disk-entity.module'
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { StorageModule } from './storage/storage.module'
     DatabaseModule,
     AuthModule,
     UserModule,
+    DiskEntityModule,
     FolderModule,
     FileModule,
     StorageModule,

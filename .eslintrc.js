@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
@@ -10,22 +11,24 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier',
   ],
-  root: true,
   env: {
     node: true,
     jest: true,
   },
   
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'dist/**/*'],
 
   rules: {
-    quotes: ['warn', 'single', { avoidEscape: true }],
-
-    'prefer-promise-reject-errors': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+
+    quotes: ['warn', 'single', { avoidEscape: true }],
+
+    'prefer-promise-reject-errors': 'off',
 
     'object-curly-spacing': ['error', 'always'],
 
@@ -38,8 +41,8 @@ module.exports = {
 
     'semi': ['error', 'never'],
 
-    "no-multiple-empty-lines": ['error', {
-      'max': 2,
-    }],
+    "no-multiple-empty-lines": ['error', { 'max': 2, }],
+
+    'no-console': ['warn', { allow: ['warn', 'error'] }]
   },
 };

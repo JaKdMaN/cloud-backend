@@ -6,12 +6,14 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
     "prod": "node dist/main",
+    "build": "nest build",
+    "lint": "eslint . --ext .ts",
+    "list:fix": "eslist . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
     "migration:generate": "npx sequelize-cli migration:generate --name",
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo"
