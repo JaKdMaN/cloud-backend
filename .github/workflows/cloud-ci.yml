@@ -31,7 +31,7 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
   
   Lint:
-    name: Lint code
+    name: Lint
     runs-on: ubuntu-latest
     needs: Dependencies
 
