@@ -29,13 +29,10 @@ jobs:
       - name: Install Dependencies       
         run: npm ci
         if: steps.cache-deps.outputs.cache-hit != 'true'
-
-      - name: build project
-        run: npm run build
   
   Lint:
     name: Lint code
-    runs-on: ubunu-latest
+    runs-on: ubuntu-latest
     needs: Dependencies
 
     steps:
@@ -50,9 +47,7 @@ jobs:
       - name: Restore dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            node_modules
-            **/node_modules
+          path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node
@@ -61,8 +56,8 @@ jobs:
         run: npm run lint
 
   Build:
-    name: build
-    runs-on: ubunu-latest
+    name: Build
+    runs-on: ubuntu-latest
     needs: Lint
 
     steps:
@@ -77,12 +72,10 @@ jobs:
       - name: Restore dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            node_modules
-            **/node_modules
+          path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node
           
-      - name: Build Lint
+      - name: Build project
         run: npm run build
